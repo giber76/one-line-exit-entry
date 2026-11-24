@@ -1,19 +1,35 @@
+// The One-Line Exit — a one-line resignation letter.
+//
+// The joke: the office keeps saying "we're a family here", so the
+// employee takes the metaphor at face value and files for emancipation
+// — the legal way a minor leaves a family — instead of just quitting.
+// Formal letter tone ("I hereby resign", "formally request") makes the
+// punchline land harder: the last word reframes the whole sentence.
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-// One funny resignation line for The One-Line Exit (1-140 chars, single line).
-// Setup: the "we're a family here" workplace cliché. Twist: the employee
-// treats the metaphor literally and files for emancipation, like a child
-// leaving home — a resignation that reads as a real letter, with the joke
-// landing in the last word.
-const LINE =
+const ENTRY_LINE =
   "I hereby resign: after three years of being 'part of the family,' I would like to formally request emancipation.";
 
-// Guard the gate: entry.txt must be 1-140 chars of UTF-8 text, single line.
-if (LINE.length < 1 || LINE.length > 140 || LINE.includes("\n")) {
-  throw new Error(`LINE must be 1-140 chars, single line (got ${LINE.length})`);
+// Gate: the kit requires 1-140 UTF-8 chars, exactly one line, not blank.
+// Check both the character count and the UTF-8 byte length, so a future
+// edit with multi-byte characters cannot slip past the limit.
+const charCount = [...ENTRY_LINE].length;
+const byteCount = new TextEncoder().encode(ENTRY_LINE).length;
+if (
+  charCount < 1 ||
+  charCount > 140 ||
+  byteCount > 140 ||
+  ENTRY_LINE.includes("\n") ||
+  ENTRY_LINE.includes("\r") ||
+  ENTRY_LINE.trim().length === 0
+) {
+  throw new Error(
+    `entry must be 1-140 chars, single line (got ${charCount} chars, ${byteCount} bytes)`,
+  );
 }
 
 const outputDir = process.env.OUTPUT_DIR ?? "/output";
 mkdirSync(outputDir, { recursive: true });
-writeFileSync(join(outputDir, "entry.txt"), LINE, "utf8");
+writeFileSync(join(outputDir, "entry.txt"), ENTRY_LINE, "utf8");
+console.log(`wrote ${charCount} chars to ${join(outputDir, "entry.txt")}`);
